@@ -7,7 +7,7 @@ from flask import current_app, jsonify, make_response, request
 from ihome.utils.response_code import RET
 from ihome.models import User
 from ihome.libs.yuntongxun.sms import CCP
-from ihome.tasks.sms.tasks import send_sms
+# from ihome.tasks.sms.tasks import send_sms
 import random
 
 
@@ -120,32 +120,32 @@ def get_sms_code(mobile):
         current_app.logger.error(e)
         return jsonify(errno=RET.DBERR, errmsg="保存短信验证码异常")
 
-    # # 发送短信
-    # try:
-    #     ccp = CCP()
-    #     result = ccp.send_template_sms(mobile, [sms_code, int(constants.SMS_CODE_REDIS_EXPIRES/60)], 1)
-    # except Exception as e:
-    #     current_app.logger.error(e)
-    #     return jsonify(errno=RET.THIRDERR, errmsg="发送异常")
-    #
-    # # 返回值
-    # if result == 0:
-    #     # 发送成功
-    #     return jsonify(errno=RET.OK, errmsg="发送成功")
-    # else:
-    #     return jsonify(errno=RET.THIRDERR, errmsg="发送失败")
+    # 发送短信
+    try:
+        ccp = CCP()
+        result = ccp.send_template_sms(mobile, [sms_code, int(constants.SMS_CODE_REDIS_EXPIRES/60)], 1)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.THIRDERR, errmsg="发送异常")
+    
+    # 返回值
+    if result == 0:
+        # 发送成功
+        return jsonify(errno=RET.OK, errmsg="发送成功")
+    else:
+        return jsonify(errno=RET.THIRDERR, errmsg="发送失败")
 
     # 使用celery异步发送短信
-    result_obj = send_sms.delay(mobile, [sms_code, int(constants.SMS_CODE_REDIS_EXPIRES / 60)], 1)
-    print(result_obj.id)
+#     result_obj = send_sms.delay(mobile, [sms_code, int(constants.SMS_CODE_REDIS_EXPIRES / 60)], 1)
+#     print(result_obj.id)
 
     # 通过异步任务对象的get方法获取异步任务的结果, 默认get方法是阻塞的
-    ret = result_obj.get()
-    print("ret=%s" % ret)
+#     ret = result_obj.get()
+#     print("ret=%s" % ret)
 
     # 返回值
     # 发送成功
-    return jsonify(errno=RET.OK, errmsg="发送成功")
+#     return jsonify(errno=RET.OK, errmsg="发送成功")
 
 
 
